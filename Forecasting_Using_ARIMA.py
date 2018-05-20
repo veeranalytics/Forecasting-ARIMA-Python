@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[170]:
+# In[2]:
 
 
 # Load Libraries
@@ -15,14 +15,14 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.arima_model import ARIMA
 
 
-# In[171]:
+# In[27]:
 
 
 # Get Data
-series = pd.read_csv('https://raw.githubusercontent.com/veeranalytics/Forecasting-ARIMA-Python/master/Product_Sales.csv')
+series = pd.read_csv('https://raw.githubusercontent.com/veeranalytics/Forecasting-RNN-Python/master/Sales_Data.csv')
 
 
-# In[172]:
+# In[29]:
 
 
 # Create a new column (Date) to capture date information in date format
@@ -35,22 +35,23 @@ del series['Month']
 series.set_index('Date', inplace=True)
 
 
-# In[173]:
+# In[30]:
 
 
 # take a look at the data (first five obs)
 series.head()
 
 
-# In[174]:
+# In[31]:
 
 
 # Take a look at variable data types-- only one variable is there- Sales, Date variable has become index
 # Converting Date variable to index helps in performing forecasting easier.
+series = series.astype('float32')
 series.dtypes
 
 
-# In[175]:
+# In[32]:
 
 
 # Show plot
@@ -64,7 +65,7 @@ pyplot.show()
 ## Will fit an ARIMA model.
 
 
-# In[176]:
+# In[33]:
 
 
 # Out of Sample Forecast Using ARIMA
@@ -76,7 +77,7 @@ history = [x for x in train]
 predictions = list()
 
 
-# In[177]:
+# In[34]:
 
 
 # Checking Autocorrelation factor
@@ -84,7 +85,7 @@ predictions = list()
 acf_plot = plot_acf(train)
 
 
-# In[178]:
+# In[35]:
 
 
 # Checking Partial Autocorrelation factor
@@ -93,21 +94,21 @@ pacf_plot = plot_pacf(train)
 
 ## Findings:
 ## ACF: There is a positive correlation with the first 10 to 12 lags, perhaps significant for the first 3 lags only.
-## This suggest of MA(3) model.
+## This suggest of MA(6) model.
 ## PACF: The correlation is significant for the first 03 lags only, this suggests of AR(3) model.
-## We will go with ARIMA(3,1,3) model.
+## We will go with ARIMA(3,1,6) model.
 
 
-# In[179]:
+# In[36]:
 
 
 # Fit ARIMA model
-model = ARIMA(train, order=(3,1,3))
+model = ARIMA(train, order=(3,1,6))
 model_fit = model.fit(disp=0)
 print(model_fit.summary())
 
 
-# In[136]:
+# In[37]:
 
 
 # plot residual errors
@@ -119,16 +120,16 @@ pyplot.show()
 print(residuals.describe())
 
 
-# In[180]:
+# In[40]:
 
 
 # Predict sales for next 07 months to comapre with test data
-start_index = 30
-end_index = 35
+start_index = 119
+end_index = 144
 predictions = model_fit.predict(start=start_index, end=end_index, typ='levels')
 
 
-# In[181]:
+# In[41]:
 
 
 # plot
@@ -137,7 +138,7 @@ pyplot.plot(predictions, color='red')
 pyplot.show()
 
 
-# In[182]:
+# In[42]:
 
 
 # Print Errors
@@ -145,16 +146,16 @@ error = ((predictions - test) ** 2).mean(axis=None)
 print('Test MSE: %.3f' % error)
 
 
-# In[183]:
+# In[43]:
 
 
 # Forecast sales for next 24 months
-start_index = 36
-end_index = 59
+start_index = 144
+end_index = 168
 forecast = model_fit.predict(start=start_index, end=end_index, typ='levels')
 
 
-# In[169]:
+# In[44]:
 
 
 pyplot.plot(forecast, color='blue')
